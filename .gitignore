@@ -1,0 +1,33 @@
+# Dependencias y build
+node_modules/
+.next/
+dist/
+out/
+
+# Entorno: se versiona el ejemplo, nunca el real
+.env
+.env.*
+!.env.example
+
+# Codex: los .toml se generan desde .claude/agents/*.md
+.codex/agents/
+
+# Claude Code: los agentes sí se versionan; los ajustes de esta máquina, no
+.claude/settings.local.json
+.claude/launch.json
+
+# TypeScript: lo genera Next en cada arranque
+next-env.d.ts
+*.tsbuildinfo
+
+# Supabase local
+supabase/.temp/
+
+# Vercel
+.vercel
+
+# Volcados de base: van a ~/Respaldos, nunca al repo
+respaldo-*.sql
+
+# macOS
+.DS_Store

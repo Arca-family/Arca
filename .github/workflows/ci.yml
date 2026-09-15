@@ -1,0 +1,34 @@
+# Comprobaciones de Arca. El orden importa: lint y tipos son rápidos y fallan
+# pronto; el build es lo más lento y va al final.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Los agentes de Codex se generan desde .claude/agents/. Si alguien edita
+      # un .md y no regenera, las dos copias empiezan a decir cosas distintas.
+      - run: npm run agentes:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

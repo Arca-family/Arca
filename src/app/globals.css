@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+/* Arca se diseña a 375px de ancho primero. El escritorio es adaptación. */
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+}
