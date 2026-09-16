@@ -233,3 +233,26 @@ en cuanto alguien lo tocara.
 `supabase init`, `next dev`), mira el diff antes de commitear. Y en `.gitignore`,
 una negación solo vale si nada posterior vuelve a capturar el patrón: las
 excepciones se revisan cada vez que algo añade líneas al final.
+
+### L23 · Un despliegue bloqueado no dice que está bloqueado
+
+**Qué pasó.** 2026-09-16. `vercel deploy --prod` terminó con código 0, subió los
+ficheros y escribió «Building…». Catorce minutos después seguía en estado
+`UNKNOWN` con el build en **0 ms**: nunca llegó a construir. El estado real era
+`BLOCKED`, y el motivo, la configuración de equipo frente al autor del commit.
+Nada en la salida del comando lo insinuaba.
+
+Probado, no supuesto: el mismo código desplegado desde una copia **sin `.git`**
+quedó `Ready` en 21 segundos. Lo que bloquea son los metadatos de git del
+commit, no el código.
+
+**Reglas.**
+1. Un despliegue no está hecho porque el comando salga con 0: **se comprueba el
+   `readyState`**. `BLOCKED` y `ERROR` son estados terminales que hay que mirar a
+   propósito.
+2. Es la misma trampa que ya costó tres cambios dados por publicados en un
+   proyecto hermano. Cuando un automatismo de Vercel calle, sospechar de la
+   configuración de equipo antes que del código.
+3. El apaño de desplegar sin `.git` sirve para salir del paso; el arreglo de
+   verdad es conectar GitHub a la cuenta de Vercel o dar de alta al autor de los
+   commits en el equipo.

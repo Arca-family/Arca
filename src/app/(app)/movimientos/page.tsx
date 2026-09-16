@@ -1,7 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { type MovimientoHogar, obtenerMovimientosDelMes } from '@/lib/datos-falsos';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import {
+  type MovimientoHogar,
+  type TipoMovimiento,
+  obtenerMovimientosDelMes,
+  obtenerTotalesDelMes,
+} from '@/lib/datos-falsos';
 import { formatear } from '@/lib/dinero';
 import { etiquetaDia } from '@/lib/fecha';
 
@@ -15,8 +22,41 @@ function agruparPorDia(movimientos: MovimientoHogar[]): [string, MovimientoHogar
   return [...grupos.entries()];
 }
 
-export default function Movimientos() {
-  const grupos = agruparPorDia(obtenerMovimientosDelMes());
+// Cualquier valor que no sea uno de los dos tipos se trata como «sin
+// filtro»: una URL vieja o mal escrita enseña todos los movimientos en vez de
+// romper la pantalla.
+function leerFiltro(valor: string | null): TipoMovimiento | null {
+  return valor === 'expense' || valor === 'income' ? valor : null;
+}
+
+// El filtro vive en la URL (?tipo=expense|income), no solo en estado de
+// React: así se puede compartir, sobrevive a un refresco y el botón de atrás
+// del móvil deshace el filtro como se espera. `useSearchParams()` obliga a un
+// límite de Suspense para que Next pueda seguir sirviendo el resto de la
+// pantalla como contenido estático.
+export default function PantallaMovimientos() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-md px-pagina pt-8">
+          <h1 className="text-xl font-semibold text-texto">Movimientos</h1>
+        </main>
+      }
+    >
+      <Movimientos />
+    </Suspense>
+  );
+}
+
+function Movimientos() {
+  const filtro = leerFiltro(useSearchParams().get('tipo'));
+  // La única fuente de cualquier total es este objeto (lección L8): con
+  // filtro se lee `expense_total`/`income_total`, sin filtro no se muestra
+  // ningún total nuevo. Nunca se suma la lista filtrada a mano.
+  const totales = obtenerTotalesDelMes();
+  const todos = obtenerMovimientosDelMes();
+  const movimientos = filtro ? todos.filter((m) => m.kind === filtro) : todos;
+  const grupos = agruparPorDia(movimientos);
 
   // Solo para poder probar «deshacer» sin Supabase todavía: un id restaurado
   // aquí no persiste entre recargas, y no inventa ningún dato — solo tapa el
@@ -26,7 +66,35 @@ export default function Movimientos() {
 
   return (
     <main className="mx-auto max-w-md px-pagina pt-8">
-      <h1 className="text-xl font-semibold text-texto">Movimientos</h1>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-xl font-semibold text-texto">Movimientos</h1>
+        {filtro && (
+          <Link
+            href="/movimientos"
+            className="flex min-h-toque items-center rounded-lg px-2 text-sm font-medium text-acento"
+          >
+            Ver todos
+          </Link>
+        )}
+      </div>
+
+      {filtro ? (
+        <div className="mt-3 rounded-xl border border-borde bg-superficie px-4 py-3">
+          <p className="text-sm text-texto-tenue">
+            {filtro === 'expense' ? 'Gastos' : 'Ingresos'} de este mes
+          </p>
+          <p className="mt-1 text-lg font-semibold tabular-nums text-texto">
+            {formatear(filtro === 'expense' ? totales.expense_total : totales.income_total)}
+          </p>
+          <p className="mt-1 text-sm text-texto-tenue">
+            {filtro === 'expense' ? totales.expense_count : totales.income_count} movimientos
+          </p>
+        </div>
+      ) : (
+        <p className="mt-1 text-sm text-texto-tenue">
+          {totales.transaction_count} movimientos este mes
+        </p>
+      )}
 
       <div className="mt-4 space-y-6">
         {grupos.map(([dia, delDia]) => (

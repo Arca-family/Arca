@@ -86,7 +86,22 @@ esquema `private` y los privilegios cerrados.
 - **Credenciales.** Al entrar en la carpeta, el terminal carga la cuenta
   `personal` desde `~/.config/cuentas/personal.env` (ahí están
   `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN`). No se exportan a mano.
-- **Despliegue.** `vercel deploy --prod` desde la raíz, con la cuenta cargada.
+- **Despliegue.** Hoy **no** se puede desplegar desde la raíz del repo: Vercel
+  deja el despliegue en `BLOCKED` por los metadatos de git del commit, en
+  silencio (lección L23). Hasta que se arregle la configuración de equipo, se
+  despliega desde una copia sin `.git`:
+
+  ```
+  rsync -a --exclude .git --exclude node_modules --exclude .next --exclude .vercel ./ /tmp/arca-deploy/
+  cd /tmp/arca-deploy && vercel link --yes --project arca --scope alejandros-projects-7fd781fd && vercel deploy --prod --yes
+  ```
+
+  Y después **se comprueba el estado**, no se da por bueno el código de salida:
+  `vercel ls arca` tiene que decir `Ready`.
+- **Acceso al sitio.** El proyecto tiene Vercel Authentication activada para
+  todas las URLs `.vercel.app`, así que responde 403 a quien no tenga sesión. Es
+  deliberado: se abre iniciando sesión en Vercel desde el propio dispositivo. Hay
+  que dejarla puesta cuando lleguen los datos reales.
 
 ## Stack
 

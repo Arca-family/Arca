@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Categoria, type TipoMovimiento, obtenerCategorias } from '@/lib/datos-falsos';
 import { type Centimos, ImporteInvalido, aCentimos, formatear } from '@/lib/dinero';
 import { hoyIso } from '@/lib/fecha';
@@ -28,6 +28,10 @@ function centimosDe(texto: string): Centimos | null {
 
 const HOY = hoyIso();
 
+// Lo que se considera «dentro del diálogo» a efectos de atrapar el tabulador.
+const FOCOABLES =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * La entrada rápida: el corazón del producto. Tres toques — abrir, confirmar
  * el importe, elegir la categoría — y listo. Fecha de hoy y tipo «gasto» por
@@ -47,6 +51,7 @@ export function EntradaRapida({ onCerrar }: Props) {
   const [nota, setNota] = useState('');
   const [masOpciones, setMasOpciones] = useState(false);
   const [categoriaElegida, setCategoriaElegida] = useState<Categoria | null>(null);
+  const contenedorRef = useRef<HTMLDivElement>(null);
 
   const centimos = centimosDe(texto);
 
@@ -55,6 +60,51 @@ export function EntradaRapida({ onCerrar }: Props) {
     const temporizador = setTimeout(onCerrar, 1400);
     return () => clearTimeout(temporizador);
   }, [paso, onCerrar]);
+
+  // Un diálogo a pantalla completa se lleva el foco al abrirse y lo devuelve
+  // a quien lo abrió (el botón flotante) al cerrarse: si no, el foco se queda
+  // perdido en un botón que ya no está.
+  useEffect(() => {
+    const anterior = document.activeElement as HTMLElement | null;
+    return () => anterior?.focus();
+  }, []);
+
+  // Y lo mueve dentro del diálogo en cada paso: al abrir, y otra vez al pasar
+  // de importe a categoría o a la confirmación.
+  useEffect(() => {
+    const primero = contenedorRef.current?.querySelector<HTMLElement>(FOCOABLES);
+    (primero ?? contenedorRef.current)?.focus();
+  }, [paso]);
+
+  // Atrapa el tabulador dentro del diálogo y cierra con Escape. Sin esto, un
+  // `overlay` a pantalla completa deja que el foco se escape a la barra
+  // inferior que sigue debajo, aunque no se vea.
+  useEffect(() => {
+    function alTeclado(evento: KeyboardEvent) {
+      if (evento.key === 'Escape') {
+        evento.preventDefault();
+        onCerrar();
+        return;
+      }
+      if (evento.key !== 'Tab' || !contenedorRef.current) return;
+
+      const lista = Array.from(contenedorRef.current.querySelectorAll<HTMLElement>(FOCOABLES));
+      if (lista.length === 0) return;
+      const primero = lista[0];
+      const ultimo = lista[lista.length - 1];
+
+      if (evento.shiftKey && document.activeElement === primero) {
+        evento.preventDefault();
+        ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault();
+        primero.focus();
+      }
+    }
+
+    document.addEventListener('keydown', alTeclado);
+    return () => document.removeEventListener('keydown', alTeclado);
+  }, [onCerrar]);
 
   function elegirCategoria(categoria: Categoria) {
     setCategoriaElegida(categoria);
@@ -65,9 +115,11 @@ export function EntradaRapida({ onCerrar }: Props) {
 
   return (
     <div
+      ref={contenedorRef}
       role="dialog"
       aria-modal="true"
       aria-label="Apuntar un movimiento"
+      tabIndex={-1}
       className="fixed inset-0 z-50 flex flex-col bg-superficie pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
     >
       <header className="flex items-center justify-between px-pagina py-3">

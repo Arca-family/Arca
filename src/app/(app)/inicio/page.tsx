@@ -5,7 +5,9 @@ import { etiquetaMes } from '@/lib/fecha';
 
 // El panel del día a día (DEC-0006): solo consulta, nunca escribe. La cifra
 // grande y los dos bloques vivos salen enteros de `household_monthly_totals`;
-// esta pantalla no suma un solo movimiento por su cuenta (lección L8).
+// esta pantalla no suma un solo movimiento por su cuenta (lección L8). Gastos
+// e Ingresos son accesos directos a /movimientos filtrado — eso es navegar,
+// no escribir, así que la regla de «solo consulta» sigue intacta.
 export default function Inicio() {
   const totales = obtenerTotalesDelMes();
   const negativo = totales.net_total < 0;
@@ -22,8 +24,16 @@ export default function Inicio() {
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-3">
-        <BloqueArea nombre="Gastos" valor={formatear(totales.expense_total)} />
-        <BloqueArea nombre="Ingresos" valor={formatear(totales.income_total)} />
+        <BloqueArea
+          nombre="Gastos"
+          valor={formatear(totales.expense_total)}
+          href="/movimientos?tipo=expense"
+        />
+        <BloqueArea
+          nombre="Ingresos"
+          valor={formatear(totales.income_total)}
+          href="/movimientos?tipo=income"
+        />
         {/* Apagados a propósito (DEC-0006): visibles desde el primer día para
             no tener que rediseñar la navegación cuando se construyan. */}
         <BloqueArea nombre="Presupuesto" apagado />
