@@ -53,3 +53,17 @@ export function hoyIso(ahora = new Date()): string {
   const dia = String(ahora.getDate()).padStart(2, '0');
   return `${anio}-${mes}-${dia}`;
 }
+
+/**
+ * El primer día del mes siguiente a `mesIso` (yyyy-mm-01). Sirve para acotar
+ * `occurred_on` por rango (`>= mes` y `< este valor`) en vez de por igualdad
+ * de mes: el rango sí usa el índice de `transactions`
+ * (supabase/migrations/20260916064405_vistas_del_mes.sql); filtrar solo por
+ * columna de mes recorre el histórico del hogar.
+ */
+export function primerDiaMesSiguiente(mesIso: string): string {
+  const fecha = aFechaLocal(mesIso);
+  // El constructor de `Date` hace el acarreo de año él solo con el mes 12.
+  const siguiente = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1, 12);
+  return `${siguiente.getFullYear()}-${String(siguiente.getMonth() + 1).padStart(2, '0')}-01`;
+}

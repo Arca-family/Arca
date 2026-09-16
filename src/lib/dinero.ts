@@ -93,3 +93,23 @@ export function desdeNumericSql(valor: string | number): Centimos {
 export function sumar(...importes: Centimos[]): Centimos {
   return importes.reduce((total, importe) => total + importe, 0);
 }
+
+/**
+ * El valor que exige `p_amount` en los RPC de escritura (create_transaction):
+ * el generador de tipos de Supabase declara ese parámetro `numeric` como
+ * `number`, así que hay que dárselo aunque la base lo trate como
+ * `numeric(14,2)`. Es exacto, no una vuelta a la coma flotante que esta
+ * regla prohíbe: `aNumericSql()` ya hizo la única aritmética (truncar y
+ * módulo, nunca una división) y devolvió una cadena de como mucho 12 dígitos
+ * enteros y 2 decimales, el límite de `numeric(14,2)`. Un `double` de
+ * JavaScript representa sin pérdida cualquier decimal de hasta 15 dígitos
+ * significativos, así que convertir esa cadena con `Number()` no pierde ni un
+ * céntimo — `desdeNumericSql()` la lee de vuelta exacta (lo comprueba el
+ * test) — aunque al volver a imprimirse como texto pueda perder los ceros
+ * finales (`100` en vez de `100.00`): eso no cambia el valor que PostgREST le
+ * manda a Postgres, solo su forma de escribirlo. Es el único sitio del
+ * proyecto donde se hace esta conversión.
+ */
+export function aNumericoRpc(centimos: Centimos): number {
+  return Number(aNumericSql(centimos));
+}

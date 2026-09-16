@@ -4,6 +4,7 @@ import {
   ImporteInvalido,
   aCentimos,
   aNumericSql,
+  aNumericoRpc,
   desdeNumericSql,
   formatear,
   sumar,
@@ -47,6 +48,12 @@ test('ida y vuelta a la base sin perder un céntimo', () => {
 
 test('no acepta importes mayores que numeric(14,2)', () => {
   assert.throws(() => aCentimos('10000000000.00'), ImporteInvalido);
+});
+
+test('el número para el RPC no pierde ni un céntimo al leerlo de vuelta', () => {
+  for (const centimos of [0, 1, 99, 100, 123456, -2099, 999999999999]) {
+    assert.equal(desdeNumericSql(aNumericoRpc(centimos)), centimos);
+  }
 });
 
 test('formatea en español', () => {

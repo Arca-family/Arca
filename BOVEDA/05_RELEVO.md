@@ -3,25 +3,25 @@
 Actualizado: 2026-09-16
 
 ```
-EN QUÉ SE ESTABA · Fase 1 de Arca: «apuntar y ver».
+EN QUÉ SE ESTABA · Fase 1 de Arca: «apuntar y ver», ya conectada a Supabase.
 
-DÓNDE QUEDÓ · Modelo de datos terminado, aplicado al proyecto real y verificado.
-  Cinco migraciones nuevas (hogar, miembros, catálogo, movimientos, vistas), con
-  md5 idéntico entre fichero local y registro remoto. La prueba de aislamiento
-  `supabase/tests/aislamiento_fase_1.sql` pasa 11 de 11 con datos reales y se
-  deshace sola. La auditoría cazó dos agujeros antes de aplicar y están
-  corregidos. La base queda vacía: 0 usuarios, 0 movimientos, 21 categorías.
+DÓNDE QUEDÓ · El circuito completo funciona y está probado a mano de punta a
+  punta en local: entrar con correo y contraseña → crear hogar → apuntar un gasto
+  → verlo en inicio y en movimientos → filtrar por tipo → anular y deshacer. El
+  importe llega a la base exacto (12.34, sin residuo de coma flotante) y la clave
+  de idempotencia es un uuid por intento. Los datos de la prueba se borraron: la
+  base vuelve a tener 0 usuarios y 0 movimientos, solo las 21 categorías.
 
-SIGUIENTE PASO · La interfaz de la fase 1: los tres clientes de Supabase, alta de
-  hogar, entrada rápida de un movimiento en tres toques, y la pantalla de inicio
-  leyendo `household_monthly_totals`. Ninguna pantalla suma movimientos por su
-  cuenta.
+SIGUIENTE PASO · Que una segunda persona pueda unirse a un hogar existente. Hoy
+  no hay manera: `create_household` siempre crea uno nuevo y no existe RPC de
+  invitación. Hay que decidir el flujo (código de invitación, enlace o correo) y,
+  de paso, cerrar que `household_members` concede `insert` directo a un adulto,
+  que es la única escritura del cliente que no pasa por la frontera.
 
-NO HACER · No revocar el `execute` de las cuatro funciones públicas de la
-  frontera para callar el aviso del asesor: son el único camino de escritura y
-  validan la pertenencia a mano. No conceder privilegios de escritura directa
-  sobre `transactions`. No aplicar migraciones desde el editor SQL del panel. La
-  clave de idempotencia la genera el dispositivo, aleatoria por intento: si se
-  derivara de los datos del formulario, dos personas que apunten la misma compra
-  chocarían con un PT409.
+NO HACER · No borrar al único adulto de un hogar: la guarda
+  `household_members_require_active_adult` lo impide y hace falta ser dueño de la
+  base para saltársela. No derivar la clave de idempotencia de los datos del
+  formulario. No sumar movimientos en una pantalla: el total sale de
+  `household_monthly_totals`. Y no meter datos reales de la familia en el
+  repositorio, que ahora es público.
 ```

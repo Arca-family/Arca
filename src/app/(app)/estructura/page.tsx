@@ -1,18 +1,32 @@
 import { BloqueArea } from '@/components/BloqueArea';
-import { ETIQUETA_ROL, obtenerHogar, obtenerMiembros } from '@/lib/datos-falsos';
+import { ETIQUETA_ROL, obtenerHogar, obtenerMiembros } from '@/lib/datos';
+import { exigirHogar, exigirSesion } from '@/lib/sesion';
+import { crearClienteServidor } from '@/lib/supabase/servidor';
+import { BotonSalir } from './BotonSalir';
 
 // Dónde se monta y se cambia el esqueleto del hogar (DEC-0006): solo se
 // configura, nunca se consulta el mes. La edición real de miembros y de las
-// secciones apagadas llega con la frontera de escritura de Supabase; esta
-// pantalla, de momento, solo enseña la forma.
-export default function Estructura() {
-  const hogar = obtenerHogar();
-  const miembros = obtenerMiembros();
+// secciones apagadas es de una fase posterior; esta pantalla, de momento,
+// solo enseña la forma con datos reales.
+export default async function Estructura() {
+  const supabase = await crearClienteServidor();
+  const usuario = await exigirSesion(supabase);
+  const pertenencia = await exigirHogar(supabase, usuario.id);
+
+  const [hogar, miembros] = await Promise.all([
+    obtenerHogar(supabase, pertenencia.householdId),
+    obtenerMiembros(supabase, pertenencia.householdId),
+  ]);
 
   return (
     <main className="mx-auto max-w-md px-pagina pt-8">
-      <h1 className="text-xl font-semibold text-texto">Estructura</h1>
-      <p className="mt-1 text-sm text-texto-tenue">{hogar.name}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-semibold text-texto">Estructura</h1>
+          <p className="mt-1 text-sm text-texto-tenue">{hogar.name}</p>
+        </div>
+        <BotonSalir />
+      </div>
 
       <h2 className="mt-6 text-sm font-medium text-texto-tenue">Miembros</h2>
       <ul className="mt-2 space-y-2">

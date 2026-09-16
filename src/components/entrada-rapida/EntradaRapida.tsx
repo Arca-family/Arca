@@ -1,7 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { type Categoria, type TipoMovimiento, obtenerCategorias } from '@/lib/datos-falsos';
+import { apuntarMovimiento } from '@/app/(app)/acciones';
+import type { Categoria, TipoMovimiento } from '@/lib/datos';
 import { type Centimos, ImporteInvalido, aCentimos, formatear } from '@/lib/dinero';
 import { hoyIso } from '@/lib/fecha';
 import { TecladoImporte } from './TecladoImporte';
@@ -9,6 +11,10 @@ import { TecladoImporte } from './TecladoImporte';
 type Paso = 'importe' | 'categoria' | 'hecho';
 
 interface Props {
+  householdId: string | null;
+  categorias: Categoria[];
+  cargandoCategorias: boolean;
+  errorCarga: string | null;
   onCerrar: () => void;
 }
 
@@ -38,12 +44,20 @@ const FOCOABLES =
  * omisión; cambiar el tipo, la fecha o añadir una nota vive detrás de «Más
  * opciones», a un gesto de distancia pero fuera del camino principal.
  *
- * No persiste en `datos-falsos.ts`: esta es la fase del esqueleto navegable, y
- * escribir de verdad es lo que llega al conectar Supabase (AGENTS.md, regla
- * dura 3 — una sola frontera de escritura). Lo que sí hace es enseñar el flujo
- * completo, incluida la confirmación final.
+ * Escribe de verdad por `apuntarMovimiento` (regla dura 3 — una sola
+ * frontera de escritura). La clave de idempotencia se genera una vez al
+ * abrir el diálogo, no en cada intento de envío: así un reintento por un
+ * fallo de red reutiliza la misma clave y la frontera devuelve el movimiento
+ * ya creado en vez de duplicarlo (BOVEDA/05_RELEVO.md).
  */
-export function EntradaRapida({ onCerrar }: Props) {
+export function EntradaRapida({
+  householdId,
+  categorias,
+  cargandoCategorias,
+  errorCarga,
+  onCerrar,
+}: Props) {
+  const router = useRouter();
   const [paso, setPaso] = useState<Paso>('importe');
   const [texto, setTexto] = useState('');
   const [tipo, setTipo] = useState<TipoMovimiento>('expense');
@@ -51,6 +65,9 @@ export function EntradaRapida({ onCerrar }: Props) {
   const [nota, setNota] = useState('');
   const [masOpciones, setMasOpciones] = useState(false);
   const [categoriaElegida, setCategoriaElegida] = useState<Categoria | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   const contenedorRef = useRef<HTMLDivElement>(null);
 
   const centimos = centimosDe(texto);
@@ -106,8 +123,36 @@ export function EntradaRapida({ onCerrar }: Props) {
     return () => document.removeEventListener('keydown', alTeclado);
   }, [onCerrar]);
 
-  function elegirCategoria(categoria: Categoria) {
+  async function elegirCategoria(categoria: Categoria) {
+    // No debería poder pasar: el grid de categorías no se pinta hasta que
+    // hay hogar y céntimos válidos (ver más abajo). Defensivo, no silencioso.
+    if (householdId === null || centimos === null) return;
+
     setCategoriaElegida(categoria);
+    setEnviando(true);
+    setError(null);
+
+    const resultado = await apuntarMovimiento({
+      householdId,
+      kind: tipo,
+      amount: centimos,
+      occurredOn: fecha,
+      categoryCode: categoria.code,
+      note: nota === '' ? null : nota,
+      idempotencyKey,
+    });
+
+    setEnviando(false);
+
+    if (!resultado.ok) {
+      setError(resultado.error.mensaje);
+      return;
+    }
+
+    // Para que /inicio y /movimientos reflejen el movimiento nuevo en cuanto
+    // se cierre este diálogo (ninguna pantalla suma movimientos por su
+    // cuenta: leen otra vez de household_monthly_totals/household_transactions).
+    router.refresh();
     setPaso('hecho');
   }
 
@@ -239,18 +284,34 @@ export function EntradaRapida({ onCerrar }: Props) {
                 <span className="font-semibold text-texto">{formatear(importeConSigno)}</span>
               </p>
             )}
-            <div className="grid grid-cols-2 gap-3">
-              {obtenerCategorias(tipo).map((categoria) => (
-                <button
-                  key={categoria.code}
-                  type="button"
-                  onClick={() => elegirCategoria(categoria)}
-                  className="min-h-toque rounded-xl border border-borde bg-superficie px-3 py-3 text-left text-sm font-medium text-texto active:bg-fondo"
-                >
-                  {categoria.label}
-                </button>
-              ))}
-            </div>
+            {error && (
+              <p role="alert" className="mb-3 text-center text-sm font-medium text-gasto">
+                {error}
+              </p>
+            )}
+            {errorCarga ? (
+              <p role="alert" className="text-center text-sm font-medium text-gasto">
+                {errorCarga}
+              </p>
+            ) : cargandoCategorias || householdId === null ? (
+              <p className="text-center text-sm text-texto-tenue">Cargando categorías…</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {categorias
+                  .filter((categoria) => categoria.kind === tipo)
+                  .map((categoria) => (
+                    <button
+                      key={categoria.code}
+                      type="button"
+                      onClick={() => elegirCategoria(categoria)}
+                      disabled={enviando}
+                      className="min-h-toque rounded-xl border border-borde bg-superficie px-3 py-3 text-left text-sm font-medium text-texto active:bg-fondo disabled:opacity-40"
+                    >
+                      {categoria.label}
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
         )}
 

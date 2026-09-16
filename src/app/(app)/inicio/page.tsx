@@ -1,15 +1,22 @@
 import { BloqueArea } from '@/components/BloqueArea';
-import { obtenerTotalesDelMes } from '@/lib/datos-falsos';
+import { obtenerMesActual, obtenerTotalesDelMes } from '@/lib/datos';
 import { formatear } from '@/lib/dinero';
 import { etiquetaMes } from '@/lib/fecha';
+import { exigirHogar, exigirSesion } from '@/lib/sesion';
+import { crearClienteServidor } from '@/lib/supabase/servidor';
 
 // El panel del día a día (DEC-0006): solo consulta, nunca escribe. La cifra
 // grande y los dos bloques vivos salen enteros de `household_monthly_totals`;
 // esta pantalla no suma un solo movimiento por su cuenta (lección L8). Gastos
 // e Ingresos son accesos directos a /movimientos filtrado — eso es navegar,
 // no escribir, así que la regla de «solo consulta» sigue intacta.
-export default function Inicio() {
-  const totales = obtenerTotalesDelMes();
+export default async function Inicio() {
+  const supabase = await crearClienteServidor();
+  const usuario = await exigirSesion(supabase);
+  const pertenencia = await exigirHogar(supabase, usuario.id);
+
+  const mes = await obtenerMesActual(supabase);
+  const totales = await obtenerTotalesDelMes(supabase, pertenencia.householdId, mes);
   const negativo = totales.net_total < 0;
 
   return (
