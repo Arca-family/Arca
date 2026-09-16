@@ -33,7 +33,11 @@ CI; el proyecto de Supabase existe con una primera migración aplicada por CLI;
 Vercel sirve una página en blanco con las cabeceras de seguridad puestas; y
 entrar en la carpeta carga la cuenta `personal` sola.
 
-## Fase 1 · Apuntar y ver  ← siguiente, y el corazón del producto
+## Fase 1 · Apuntar y ver  ← en marcha, y el corazón del producto
+
+**Modelo de datos: hecho y verificado** el 2026-09-16 (ver
+`02_ESTADO_Y_ARQUITECTURA.md`). **Falta la interfaz**: alta de hogar, entrada
+rápida de un movimiento y la pantalla de inicio.
 
 Hogar, miembros, un movimiento (ingreso o gasto) con categoría, y la pantalla de
 inicio que responde «¿cómo vamos este mes?».

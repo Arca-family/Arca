@@ -200,3 +200,36 @@ nunca.
 que está versionado. Una comprobación sobre artefactos generados es **local**. Si
 quieres que CI aporte algo ahí, que valide lo que sí viaja: en este caso, que cada
 agente se pueda generar y esté bien declarado.
+
+### L21 · El `usage` de esquema no frena a una política, pero sí a una llamada directa
+
+**Qué pasó.** 2026-09-16. La migración de cimientos revocó `usage` sobre `private`
+a `anon` y `authenticated`. Al revisar el modelo de la fase 1 se dio por hecho
+que eso rompería toda política RLS que llamara a
+`private.is_household_member(...)`, y llegó a escribirse una migración correctora
+para conceder ese `usage`. Era falso, y se vio en dos consultas:
+
+- Una política RLS **sí** invoca `private.*` sin `usage` de esquema: devolvió la
+  fila con el privilegio revocado. El `usage` se comprueba al crear la política,
+  no al evaluarla.
+- Una llamada **directa** de `authenticated` a esa misma función, con su
+  `grant execute` puesto, falla con `42501 permission denied for schema private`.
+
+**Regla.** `private` se queda **sin** `usage` para los roles de la API: las
+políticas siguen funcionando y las llamadas directas quedan cortadas, que es
+exactamente lo que se busca. Y la lección de fondo: **esto no se razona, se
+prueba.** Dos agentes sostenían lo contrario con argumentos razonables; dos
+consultas contra la base lo zanjaron en un minuto. Cuando algo dependa de cómo se
+comporta Postgres, la respuesta la da Postgres.
+
+### L22 · Las herramientas te editan el `.gitignore` por su cuenta
+
+**Qué pasó.** `vercel link` añadió `.env*` al final del `.gitignore`. Como iba
+**después** del `!.env.example`, volvía a ignorar el fichero de ejemplo; solo
+seguía versionado porque ya estaba en el índice. Un clon nuevo lo habría perdido
+en cuanto alguien lo tocara.
+
+**Regla.** Después de que una CLI toque el repositorio (`vercel link`,
+`supabase init`, `next dev`), mira el diff antes de commitear. Y en `.gitignore`,
+una negación solo vale si nada posterior vuelve a capturar el patrón: las
+excepciones se revisan cada vez que algo añade líneas al final.

@@ -1,26 +1,27 @@
 # Relevo
 
-Actualizado: 2026-09-15
+Actualizado: 2026-09-16
 
 ```
-EN QUÉ SE ESTABA · Fase 0 de Arca, los cimientos, después de borrar por completo
-  las dos versiones anteriores del producto (disco, GitHub, Vercel y Supabase,
-  las cuatro cosas confirmadas borradas).
+EN QUÉ SE ESTABA · Fase 1 de Arca: «apuntar y ver».
 
-DÓNDE QUEDÓ · Fase 0 cerrada y verificada. `npm run verify` y el CI de GitHub, los
-  dos en verde. Repo privado BigAPP37/Arca en main. Supabase «Arca»
-  (ref girbdumarikmcctawmql, eu-west-3) con la migración 20260915201204 aplicada
-  y registrada, y el asesor de seguridad sin hallazgos. Vercel sirviendo
-  https://arca-eosin.vercel.app con la CSP ya estrechada al origen real.
-  Decisiones DEC-0001 a DEC-0005 escritas.
+DÓNDE QUEDÓ · Modelo de datos terminado, aplicado al proyecto real y verificado.
+  Cinco migraciones nuevas (hogar, miembros, catálogo, movimientos, vistas), con
+  md5 idéntico entre fichero local y registro remoto. La prueba de aislamiento
+  `supabase/tests/aislamiento_fase_1.sql` pasa 11 de 11 con datos reales y se
+  deshace sola. La auditoría cazó dos agujeros antes de aplicar y están
+  corregidos. La base queda vacía: 0 usuarios, 0 movimientos, 21 categorías.
 
-SIGUIENTE PASO · Fase 1: hogar, miembros y el primer movimiento. Empieza por el
-  modelo de datos con el agente `datos` —FK compuesta (id, household_id) desde la
-  primera tabla— y pasa por `seguridad` antes de dar nada por bueno.
+SIGUIENTE PASO · La interfaz de la fase 1: los tres clientes de Supabase, alta de
+  hogar, entrada rápida de un movimiento en tres toques, y la pantalla de inicio
+  leyendo `household_monthly_totals`. Ninguna pantalla suma movimientos por su
+  cuenta.
 
-NO HACER · No portar código de las versiones anteriores: solo viajan las
-  lecciones de 03_LECCIONES.md. No meter la importación de extractos antes de la
-  fase 5 (DEC-0005). No aplicar migraciones desde el editor SQL del panel. No
-  suponer que un push despliega: hasta que GitHub esté conectado a Vercel, el
-  despliegue es manual.
+NO HACER · No revocar el `execute` de las cuatro funciones públicas de la
+  frontera para callar el aviso del asesor: son el único camino de escritura y
+  validan la pertenencia a mano. No conceder privilegios de escritura directa
+  sobre `transactions`. No aplicar migraciones desde el editor SQL del panel. La
+  clave de idempotencia la genera el dispositivo, aleatoria por intento: si se
+  derivara de los datos del formulario, dos personas que apunten la misma compra
+  chocarían con un PT409.
 ```

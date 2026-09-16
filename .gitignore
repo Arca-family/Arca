@@ -31,4 +31,3 @@ respaldo-*.sql
 
 # macOS
 .DS_Store
-.env*
