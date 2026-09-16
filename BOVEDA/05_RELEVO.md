@@ -3,23 +3,24 @@
 Actualizado: 2026-09-15
 
 ```
-EN QUÉ SE ESTABA · Fase 0 de Arca: cimientos del proyecto, después de borrar por
-  completo las dos versiones anteriores del producto (disco, GitHub, Vercel y
-  Supabase, todo confirmado borrado).
+EN QUÉ SE ESTABA · Fase 0 de Arca, los cimientos, después de borrar por completo
+  las dos versiones anteriores del producto (disco, GitHub, Vercel y Supabase,
+  las cuatro cosas confirmadas borradas).
 
-DÓNDE QUEDÓ · Lo local hecho y verificado, `npm run verify` en verde (lint,
-  tipos, 9 pruebas, build): esqueleto Next.js con App Router, CSP y cabeceras de
-  seguridad, `src/lib/dinero.ts` con sus guardianes, CI de GitHub Actions, 7
-  agentes con espejo para Codex, y esta bóveda. Repo git local **sin primer
-  commit**. Decisiones DEC-0001 a DEC-0005 escritas.
+DÓNDE QUEDÓ · Fase 0 cerrada y verificada. `npm run verify` en verde. Repo
+  privado BigAPP37/Arca con dos commits. Supabase «Arca»
+  (ref girbdumarikmcctawmql, eu-west-3) con la migración 20260915201204 aplicada
+  y registrada, y el asesor de seguridad sin hallazgos. Vercel sirviendo
+  https://arca-eosin.vercel.app con la CSP ya estrechada al origen real.
+  Decisiones DEC-0001 a DEC-0005 escritas.
 
-SIGUIENTE PASO · Cerrar la fase 0 con lo que vive fuera de la carpeta: repo
-  `BigAPP37/Arca` en GitHub y primer commit, proyecto de Supabase con su primera
-  migración aplicada por CLI, proyecto de Vercel, y la fila de Arca en
-  `~/.codex/AGENTS.md`. Después, fase 1: hogar, miembros y el primer movimiento.
+SIGUIENTE PASO · Fase 1: hogar, miembros y el primer movimiento. Empieza por el
+  modelo de datos con el agente `datos` —FK compuesta (id, household_id) desde la
+  primera tabla— y pasa por `seguridad` antes de dar nada por bueno.
 
 NO HACER · No portar código de las versiones anteriores: solo viajan las
   lecciones de 03_LECCIONES.md. No meter la importación de extractos antes de la
-  fase 5 (DEC-0005). No dejar el comodín `*.supabase.co` en la CSP cuando ya se
-  conozca el origen real del proyecto.
+  fase 5 (DEC-0005). No aplicar migraciones desde el editor SQL del panel. No
+  suponer que un push despliega: hasta que GitHub esté conectado a Vercel, el
+  despliegue es manual.
 ```

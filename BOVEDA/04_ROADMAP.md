@@ -12,24 +12,27 @@ La lección L0 dice que el alcance mata antes que los bugs.
 |---|---|
 | Framework y forma de la app | **Cerrada** el 2026-09-15 · DEC-0004 |
 | Cuándo entra la importación de extractos | **Cerrada** el 2026-09-15 · DEC-0005: fase 5 |
-| Repositorio `BigAPP37/Arca` en GitHub | Por crear |
-| Proyecto de Supabase y de Vercel | Por crear |
-| Fila de Arca en `~/.codex/AGENTS.md` | Por añadir (la convención lo exige) |
+| Repositorio `BigAPP37/Arca` en GitHub | **Hecho** |
+| Proyecto de Supabase y de Vercel | **Hecho** |
+| Fila de Arca en `~/.codex/AGENTS.md` | **Hecha** |
 
-## Fase 0 · Cimientos  ← en marcha
+## Fase 0 · Cimientos  ✔ cerrada el 2026-09-15
 
 Esqueleto del proyecto, entorno y despliegue vacío funcionando de punta a punta.
 
-Lo local está hecho y verificado el 2026-09-15 (`npm run verify` en verde).
-Queda el repositorio en GitHub, el proyecto de Supabase con su primera migración
-y el despliegue en Vercel.
+Comprobado: `npm run verify` en verde, primera migración registrada en el
+proyecto remoto, auditoría de seguridad de Supabase sin hallazgos, y
+https://arca-eosin.vercel.app respondiendo 200 con las cabeceras puestas.
+
+Queda solo lo que depende de ti: conectar GitHub a Vercel para que despliegue en
+cada push (ver `02_ESTADO_Y_ARQUITECTURA.md`).
 
 **Hecho cuando:** `npm run` de lint, tipos, pruebas y build pasa en local y en
 CI; el proyecto de Supabase existe con una primera migración aplicada por CLI;
 Vercel sirve una página en blanco con las cabeceras de seguridad puestas; y
 entrar en la carpeta carga la cuenta `personal` sola.
 
-## Fase 1 · Apuntar y ver  ← el corazón del producto
+## Fase 1 · Apuntar y ver  ← siguiente, y el corazón del producto
 
 Hogar, miembros, un movimiento (ingreso o gasto) con categoría, y la pantalla de
 inicio que responde «¿cómo vamos este mes?».

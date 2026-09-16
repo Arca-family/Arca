@@ -4,8 +4,8 @@ Actualizado: 2026-09-15
 
 ## Estado real
 
-**Fase 0 en marcha.** Lo local está montado y verificado; falta lo que vive
-fuera de esta carpeta.
+**Fase 0 cerrada** el 2026-09-15. Lo siguiente es la fase 1: hogar, miembros y
+el primer movimiento.
 
 Hecho y comprobado (`npm run verify` en verde: lint, tipos, 9 pruebas, build):
 
@@ -18,14 +18,41 @@ Hecho y comprobado (`npm run verify` en verde: lint, tipos, 9 pruebas, build):
 - 7 agentes en `.claude/agents/` con espejo generado en `.codex/agents/`.
 - Esta bóveda. `.cuenta` → `personal`.
 
-Pendiente de fase 0:
+Y fuera de la carpeta:
 
-- Repositorio `BigAPP37/Arca` en GitHub y primer commit.
-- Proyecto de Supabase, con la primera migración aplicada por CLI.
-- Proyecto de Vercel sirviendo la pantalla de comprobación.
-- Fila de Arca en `~/.codex/AGENTS.md`.
+| Recurso | Qué es |
+|---|---|
+| GitHub | `BigAPP37/Arca`, privado. Rama `main`. |
+| Supabase | Proyecto `Arca`, ref `girbdumarikmcctawmql`, región `eu-west-3` (París) |
+| Vercel | Proyecto `arca`, `prj_YT5amM3mI5NxOzdDq4l7eHp6rul1`, región `dub1` |
+| Producción | https://arca-eosin.vercel.app — 200, CSP con el origen real y las cinco cabeceras verificadas con `curl` |
 
-No existe todavía: `supabase/`, autenticación, ni modelo de datos.
+No existe todavía: autenticación, ni modelo de datos. La base solo tiene el
+esquema `private` y los privilegios cerrados.
+
+### Dos cosas pendientes que dependen de ti
+
+1. **Vercel no despliega solo en cada push.** `vercel git connect` falla con
+   «You need to add a Login Connection to your GitHub account first»: hay que
+   conectar GitHub a la cuenta de Vercel una vez, desde el panel. Hasta
+   entonces, el despliegue se lanza a mano con `vercel deploy --prod`.
+2. **`SUPABASE_SERVICE_ROLE_KEY` está vacía** en `.env.local`. Se copia del
+   panel de Supabase cuando haga falta escribir desde el servidor con
+   privilegios.
+
+## Operación
+
+- **Migraciones.** El fichero de `supabase/migrations/` es la fuente de verdad y
+  su nombre lleva la versión exacta que está registrada en el proyecto remoto.
+  La primera se aplicó por el conector de Supabase porque la contraseña de la
+  base no está disponible en esta máquina; para usar `supabase db push` hay que
+  enlazar el proyecto con ella (`supabase link --project-ref
+  girbdumarikmcctawmql`). Nunca desde el editor SQL del panel: eso es lo que
+  hace divergir los dos historiales.
+- **Credenciales.** Al entrar en la carpeta, el terminal carga la cuenta
+  `personal` desde `~/.config/cuentas/personal.env` (ahí están
+  `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN`). No se exportan a mano.
+- **Despliegue.** `vercel deploy --prod` desde la raíz, con la cuenta cargada.
 
 ## Stack
 
