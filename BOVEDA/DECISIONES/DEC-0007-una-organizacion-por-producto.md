@@ -49,3 +49,29 @@ credenciales locales, que era el otro coste escondido de la idea original.
   desplegadas, y mover un repositorio vivo puede romper su despliegue.
 - La tabla de `~/.codex/AGENTS.md` es la que dice dónde vive cada repositorio: se
   actualiza en el mismo momento del cambio, no después.
+
+## Añadido el 2026-09-16: el repositorio es público
+
+Al conectar Vercel apareció un límite que no estaba previsto: **el plan Hobby no
+admite repositorios privados que pertenezcan a una organización**. Con el
+repositorio en `Arca-family` y privado, la integración con Git era imposible sin
+pasar a Pro.
+
+De las cuatro salidas —devolverlo a la cuenta personal, hacerlo público,
+desplegar siempre a mano, o pagar Pro— se eligió **hacerlo público**.
+
+Qué se comprobó antes de publicarlo, y hay que volver a comprobarlo antes de
+cualquier cosa parecida:
+
+- El historial completo no contiene ningún secreto. Lo único con forma de
+  configuración que se ha commiteado nunca es `.env.example`, y solo tiene
+  marcadores. Ni claves, ni tokens, ni JWT.
+- Lo que sí queda a la vista es el `project_id` de Supabase en
+  `supabase/config.toml`, y con él la URL de la API. **No es un secreto**: esa
+  URL viaja igual en el navegador de cualquiera que abra la aplicación. Lo que
+  protege los datos es la RLS, no que la dirección sea difícil de adivinar.
+
+Consecuencia para el día a día: **el esquema, las políticas y esta bóveda son
+públicos**. Nada de escribir en el repositorio algo que no pueda leer un
+desconocido: ni credenciales, ni datos reales de la familia, ni nombres o
+importes de ejemplo sacados de la vida real.

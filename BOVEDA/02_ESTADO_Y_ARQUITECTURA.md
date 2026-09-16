@@ -51,7 +51,7 @@ Y fuera de la carpeta:
 
 | Recurso | Qué es |
 |---|---|
-| GitHub | `Arca-family/Arca`, privado, en su propia organización (DEC-0007). Rama `main`. |
+| GitHub | `Arca-family/Arca`, **público**, en su propia organización. Rama `main`. Público por obligación del plan Hobby de Vercel, no por preferencia: ver DEC-0007. |
 | Supabase | Proyecto `Arca`, ref `girbdumarikmcctawmql`, región `eu-west-3` (París) |
 | Vercel | Proyecto `arca`, `prj_YT5amM3mI5NxOzdDq4l7eHp6rul1`, región `dub1` |
 | Producción | https://arca-eosin.vercel.app — 200, CSP con el origen real y las cinco cabeceras verificadas con `curl` |
@@ -87,18 +87,14 @@ esquema `private` y los privilegios cerrados.
 - **Credenciales.** Al entrar en la carpeta, el terminal carga la cuenta
   `personal` desde `~/.config/cuentas/personal.env` (ahí están
   `SUPABASE_ACCESS_TOKEN` y `VERCEL_TOKEN`). No se exportan a mano.
-- **Despliegue.** Hoy **no** se puede desplegar desde la raíz del repo: Vercel
-  deja el despliegue en `BLOCKED` por los metadatos de git del commit, en
-  silencio (lección L23). Hasta que se arregle la configuración de equipo, se
-  despliega desde una copia sin `.git`:
+- **Despliegue.** Automático: Vercel está conectado a `Arca-family/Arca` y cada
+  push a `main` despliega. El apaño de desplegar desde una copia sin `.git` ya no
+  hace falta; se usó mientras faltaba la conexión de login entre GitHub y Vercel,
+  que era lo que dejaba los despliegues en `BLOCKED` sin avisar.
 
-  ```
-  rsync -a --exclude .git --exclude node_modules --exclude .next --exclude .vercel ./ /tmp/arca-deploy/
-  cd /tmp/arca-deploy && vercel link --yes --project arca --scope alejandros-projects-7fd781fd && vercel deploy --prod --yes
-  ```
-
-  Y después **se comprueba el estado**, no se da por bueno el código de salida:
-  `vercel ls arca` tiene que decir `Ready`.
+  Lo que **sí sigue vigente** de aquello es la lección L23: un despliegue no está
+  hecho porque el comando salga con 0. Se comprueba el estado con
+  `vercel ls arca`, que tiene que decir `Ready`.
 - **Acceso al sitio.** El proyecto tiene Vercel Authentication activada para
   todas las URLs `.vercel.app`, así que responde 403 a quien no tenga sesión. Es
   deliberado: se abre iniciando sesión en Vercel desde el propio dispositivo. Hay
