@@ -1,13 +1,8 @@
-export default function Inicio() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-3 p-6">
-      <h1 className="text-3xl font-semibold tracking-tight">Arca</h1>
-      <p className="text-base opacity-70">
-        El fondo común del hogar. Todavía no hay nada que ver: esta pantalla
-        existe para comprobar que el esqueleto, el despliegue y las cabeceras de
-        seguridad funcionan de punta a punta.
-      </p>
-      <p className="text-sm opacity-50">Fase 0 · cimientos</p>
-    </main>
-  );
+import { redirect } from 'next/navigation';
+
+// La comprobación de la fase 0 ya pasó (ver BOVEDA/04_ROADMAP.md): ahora la
+// raíz es solo la puerta de entrada. Sin sesión real todavía, el punto de
+// partida es siempre la pantalla de peaje.
+export default function Raiz() {
+  redirect('/entrar');
 }

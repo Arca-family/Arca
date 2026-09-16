@@ -1,16 +1,67 @@
 @import 'tailwindcss';
 
-/* Arca se diseña a 375px de ancho primero. El escritorio es adaptación. */
+/*
+ * Arca se diseña a 375px de ancho primero. El escritorio es adaptación.
+ *
+ * Estos son los tokens del sistema visual: se usan en todas las pantallas y no
+ * se sueltan colores, tamaños ni espacios sueltos por los componentes. Es la
+ * fase 2 de un plan de tres pasos (ver DEC-0006 y BOVEDA/04_ROADMAP.md): los
+ * valores son provisionales — «feo está bien» — pero el mecanismo de tokens no
+ * lo es, para que la pasada de diseño posterior afine estos valores en un solo
+ * sitio en vez de reescribir cada pantalla.
+ */
 @theme {
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Color · superficies y texto. Neutros: el dinero se lee, no se ilustra. */
+  --color-fondo: #f6f6f3;
+  --color-superficie: #ffffff;
+  --color-borde: #e2e2dd;
+  --color-texto: #1b1b18;
+  --color-texto-tenue: #5c5c56;
+
+  /* Color · dinero. El signo (+/-) ya lo pone formatear(); el color aquí solo
+     refuerza, nunca es la única pista (regla de accesibilidad de AGENTS.md). */
+  --color-ingreso: #166534;
+  --color-gasto: #b91c1c;
+
+  /* Color · la acción de apuntar. Deliberadamente distinto del verde/rojo del
+     dinero, para no confundir «esto se puede tocar» con «esto es un ingreso o
+     un gasto». */
+  --color-acento: #1d4ed8;
+  --color-acento-texto: #ffffff;
+
+  /* Color · bloques que todavía no existen (DEC-0006): visibles, no
+     pulsables. El contraste está comprobado (4,5:1) para que «apagado» no
+     signifique «ilegible». */
+  --color-apagado-fondo: #ececea;
+  --color-apagado-texto: #6b6b64;
+
+  /* Espacio. Nombrado por lo que hace, no por su valor: así un ajuste futuro
+     cambia un número, no cada pantalla. */
+  --spacing-pagina: 1rem; /* margen lateral estándar de una pantalla */
+  --spacing-barra: 4.5rem; /* alto reservado para la barra inferior fija */
+  --spacing-toque: 2.75rem; /* 44px: área de toque mínima de AGENTS.md */
+
+  /* Tipografía. El resto de tamaños usa la escala de Tailwind; este es el
+     único propio, para la cifra que manda en cada pantalla: el total del mes
+     en inicio, el importe que se está escribiendo al apuntar. */
+  --text-cifra: 2.75rem;
+  --text-cifra--line-height: 1.1;
 }
 
 :root {
-  color-scheme: light dark;
+  /* Paleta propia y clara: el navegador ya no tiene que adivinar el tema de
+     los controles nativos (fecha, selects) mezclando modo oscuro del sistema
+     con un fondo claro fijo. Cuando exista un modo oscuro de verdad, esto se
+     revisa a propósito. */
+  color-scheme: light;
 }
 
 html,
 body {
   margin: 0;
   font-family: var(--font-sans);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
 }
