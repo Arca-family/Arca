@@ -32,7 +32,14 @@ Dos copias escritas a mano divergen. Una sola fuente y un generador con modo
 ## Consecuencias
 
 - Tras editar un `.md`: `node scripts/agentes/sync.mjs`.
-- `node scripts/agentes/sync.mjs --check` debe entrar en CI cuando haya CI.
+- **Corregido el 2026-09-16:** este documento decía que `--check` debía entrar en
+  CI. Era un error y CI falló en el primer push. Los `.toml` están fuera de git,
+  así que en un checkout limpio no existe ninguno con el que comparar y los siete
+  salían como desfasados. El desfase es un problema **local**: se comprueba en la
+  máquina con `npm run agentes:check`. Lo que corre en CI es
+  `npm run agentes:sync`, que valida que cada agente se pueda generar y esté bien
+  declarado; el generador sale con error si a un `.md` le falta el frontmatter o
+  la `description`.
 - Codex se abre con `node scripts/agentes/codex.mjs`, no con `codex` a secas, o
   no verá los agentes.
 - Codex ignora `tools:` y `model:`, así que cada agente lleva sus límites

@@ -10,6 +10,12 @@
 //
 //   node scripts/agentes/sync.mjs            -> regenera .codex/agents/
 //   node scripts/agentes/sync.mjs --check    -> falla si algún .toml no está al día
+//
+// Los dos modos fallan si un agente está mal declarado (sin frontmatter o sin
+// description). Esa comprobación es la única que sirve en CI: los .toml están
+// fuera de git, así que en un checkout limpio no hay nada con lo que comparar y
+// `--check` no puede detectar desfase ahí. Lo que CI valida es que cada agente
+// se pueda generar y esté bien declarado.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -57,18 +63,27 @@ fs.mkdirSync(DESTINO, { recursive: true });
 const fuentes = fs.readdirSync(ORIGEN).filter((f) => f.endsWith('.md'));
 const esperados = new Set();
 let desfasados = 0;
+let malDeclarados = 0;
 
 for (const fichero of fuentes) {
   const crudo = fs.readFileSync(path.join(ORIGEN, fichero), 'utf8');
   const parsed = frontmatter(crudo);
-  if (!parsed) { console.error(`${fichero}: sin frontmatter, lo salto.`); continue; }
+  if (!parsed) {
+    console.error(`MAL DECLARADO ${fichero}: sin frontmatter.`);
+    malDeclarados += 1;
+    continue;
+  }
   const { campos, cuerpo } = parsed;
   // En Claude los agentes son del proyecto y no chocan con nada. En Codex el
   // registro es global —lo comparten todos los repos de esta máquina—, así que
   // ahí van con prefijo: `arca-codigo` no se confunde con el de otro proyecto.
   const base = campos.name || path.basename(fichero, '.md');
   const nombre = base.includes('arca') ? base : `arca-${base}`;
-  if (!campos.description) console.error(`AVISO ${fichero}: sin description; Codex no sabrá cuándo usarlo.`);
+  if (!campos.description) {
+    console.error(`MAL DECLARADO ${fichero}: sin description; Codex no sabría cuándo usarlo.`);
+    malDeclarados += 1;
+    continue;
+  }
 
   // Codex no lee `tools:` ni `model:` del frontmatter, así que cada agente
   // lleva sus límites escritos dentro del propio prompt. Si algún día uno se
@@ -98,6 +113,11 @@ for (const sobra of fs.readdirSync(DESTINO).filter((f) => f.endsWith('.toml') &&
   desfasados += 1;
   if (comprobar) console.error(`SOBRA (ya no existe su .md): .codex/agents/${sobra}`);
   else { fs.rmSync(path.join(DESTINO, sobra)); console.log(`borrado .codex/agents/${sobra}`); }
+}
+
+if (malDeclarados) {
+  console.error(`\n${malDeclarados} agente(s) mal declarado(s). Cada .md necesita frontmatter con name y description.`);
+  process.exit(1);
 }
 
 if (comprobar && desfasados) {

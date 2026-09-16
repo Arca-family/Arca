@@ -25,9 +25,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # Los agentes de Codex se generan desde .claude/agents/. Si alguien edita
-      # un .md y no regenera, las dos copias empiezan a decir cosas distintas.
-      - run: npm run agentes:check
+      # Los agentes de Codex se generan desde .claude/agents/ y los .toml están
+      # fuera de git, así que aquí no hay nada con lo que comparar: `agentes:check`
+      # fallaba siempre en un checkout limpio. Lo que sí vale la pena comprobar es
+      # que cada agente se pueda generar y esté bien declarado, y eso lo hace el
+      # propio generador, que sale con error si a un .md le falta el frontmatter
+      # o la description. El desfase es un problema local y se ve con
+      # `npm run agentes:check` en la máquina.
+      - run: npm run agentes:sync
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

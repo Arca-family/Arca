@@ -187,3 +187,16 @@ avisar y se dieron por publicados tres cambios que nunca salieron.
 
 **Regla.** Las reglas duras de `AGENTS.md` que se puedan comprobar se convierten
 en pruebas que fallan la suite. La documentación se ignora; una prueba roja, no.
+
+### L20 · Un guardián tiene que poder fallar donde se ejecuta
+
+**Qué pasó.** 2026-09-15, primer push de Arca: el CI falló al instante. El paso
+`agentes:check` comparaba los `.toml` generados con los del repositorio, pero esos
+ficheros están en `.gitignore` a propósito, así que en un checkout limpio no
+existía ninguno y los siete salían «desfasados». La comprobación no podía pasar
+nunca.
+
+**Regla.** Antes de meter una comprobación en CI, pregúntate qué ve CI: solo lo
+que está versionado. Una comprobación sobre artefactos generados es **local**. Si
+quieres que CI aporte algo ahí, que valide lo que sí viaja: en este caso, que cada
+agente se pueda generar y esté bien declarado.
