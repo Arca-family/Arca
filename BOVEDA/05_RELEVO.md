@@ -7,8 +7,8 @@ EN QUÉ SE ESTABA · Fase 0 de Arca, los cimientos, después de borrar por compl
   las dos versiones anteriores del producto (disco, GitHub, Vercel y Supabase,
   las cuatro cosas confirmadas borradas).
 
-DÓNDE QUEDÓ · Fase 0 cerrada y verificada. `npm run verify` en verde. Repo
-  privado BigAPP37/Arca con dos commits. Supabase «Arca»
+DÓNDE QUEDÓ · Fase 0 cerrada y verificada. `npm run verify` y el CI de GitHub, los
+  dos en verde. Repo privado BigAPP37/Arca en main. Supabase «Arca»
   (ref girbdumarikmcctawmql, eu-west-3) con la migración 20260915201204 aplicada
   y registrada, y el asesor de seguridad sin hallazgos. Vercel sirviendo
   https://arca-eosin.vercel.app con la CSP ya estrechada al origen real.

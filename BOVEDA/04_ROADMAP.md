@@ -20,9 +20,10 @@ La lección L0 dice que el alcance mata antes que los bugs.
 
 Esqueleto del proyecto, entorno y despliegue vacío funcionando de punta a punta.
 
-Comprobado: `npm run verify` en verde, primera migración registrada en el
-proyecto remoto, auditoría de seguridad de Supabase sin hallazgos, y
-https://arca-eosin.vercel.app respondiendo 200 con las cabeceras puestas.
+Comprobado: `npm run verify` en verde en local **y el CI de GitHub en verde**
+(43 s), primera migración registrada en el proyecto remoto, auditoría de
+seguridad de Supabase sin hallazgos, y https://arca-eosin.vercel.app respondiendo
+200 con las cabeceras puestas y la CSP estrechada al origen real.
 
 Queda solo lo que depende de ti: conectar GitHub a Vercel para que despliegue en
 cada push (ver `02_ESTADO_Y_ARQUITECTURA.md`).
