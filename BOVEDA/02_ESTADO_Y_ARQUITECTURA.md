@@ -51,7 +51,7 @@ Y fuera de la carpeta:
 
 | Recurso | Qué es |
 |---|---|
-| GitHub | `BigAPP37/Arca`, privado. Rama `main`. |
+| GitHub | `Arca-family/Arca`, privado, en su propia organización (DEC-0007). Rama `main`. |
 | Supabase | Proyecto `Arca`, ref `girbdumarikmcctawmql`, región `eu-west-3` (París) |
 | Vercel | Proyecto `arca`, `prj_YT5amM3mI5NxOzdDq4l7eHp6rul1`, región `dub1` |
 | Producción | https://arca-eosin.vercel.app — 200, CSP con el origen real y las cinco cabeceras verificadas con `curl` |
@@ -63,8 +63,9 @@ esquema `private` y los privilegios cerrados.
 
 1. **Vercel no despliega solo en cada push.** `vercel git connect` falla con
    «You need to add a Login Connection to your GitHub account first»: hay que
-   conectar GitHub a la cuenta de Vercel una vez, desde el panel. Hasta
-   entonces, el despliegue se lanza a mano con `vercel deploy --prod`.
+   conectar GitHub a la cuenta de Vercel una vez, desde el panel, y apuntar al
+   repositorio `Arca-family/Arca`. Es también lo que quita el `BLOCKED` de la
+   lección L23 y el apaño de desplegar sin `.git`.
 2. **`SUPABASE_SERVICE_ROLE_KEY` está vacía** en `.env.local`. Se copia del
    panel de Supabase cuando haga falta escribir desde el servidor con
    privilegios.
